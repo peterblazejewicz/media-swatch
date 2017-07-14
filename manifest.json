@@ -1,0 +1,7 @@
+{
+  "name": "median-cut",
+  "short_name": "median-cut",
+  "description": "Drop an image to get its median cut swatches",
+  "start_url": "/",
+  "display": "standalone"
+}

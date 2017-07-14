@@ -1,0 +1,32 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="median-cut">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class MedianCut extends Polymer.Element {
+      static get is() { return 'median-cut'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'median-cut-app'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(MedianCut.is, MedianCut);
+  </script>
+</dom-module>
