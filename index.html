@@ -1,16 +1,33 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <title>Median Cut From Your Image</title>
+    <title>Median Cut Patches From Your Image</title>
     <meta name="description" content="Drop an image to get its median cut swatches">
     <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="/src/style/main.css" rel="stylesheet">
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <link rel="import" href="/bower_components/polymer/polymer.html">
     <link rel="import" href="/src/median-cut/median-cut.html">
-  </head>
-  <body>
-    <median-cut></median-cut>
-  </body>
+</head>
+
+<body unresolved>
+    <dom-bind id="main">
+        <template is="dom-bind">
+            <main>
+                <h1>Median Cut Patches</h1>
+                <div class="menu">
+                    <button>Upload File</button>
+                </div>
+                <median-cut></median-cut>
+            </main>
+        </template>
+    </dom-bind>
+    <footer>Median Cut Patches</footer>
+</body>
+
 </html>
