@@ -16,18 +16,29 @@
 </head>
 
 <body unresolved>
-    <dom-bind id="main">
+    <dom-bind id="app">
         <template is="dom-bind">
             <main>
                 <h1>Median Cut Patches</h1>
                 <div class="menu">
-                    <button>Upload File</button>
+                    <label role="button" tabindex="0">
+                        <input type="file" name="image_file" accept=".jpg,.jpeg,.png" on-change="upload">Upload Image
+                    </label>
                 </div>
-                <median-cut></median-cut>
+                <median-cut id="median_cut"></median-cut>
             </main>
         </template>
     </dom-bind>
     <footer>Median Cut Patches</footer>
+    <script>
+        /**
+        * handler for file upload
+        */
+        app.upload = (event) => {
+            median_cut.file = event.target.files[0];
+            return false;
+        };
+    </script>
 </body>
 
 </html>
