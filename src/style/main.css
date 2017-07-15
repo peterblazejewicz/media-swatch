@@ -19,8 +19,29 @@ main {
     padding: 1rem;
     text-align: center;
 }
-button {
+label {
     padding: .5rem 1rem;
+    color: rebeccapurple;
+    border: 3px solid rebeccapurple;
+    border-radius: 6px;
+    text-transform: capitalize;
+}
+
+label:hover, 
+label:focus,
+label:active {
+    outline: none;
+}
+label:active {
+    background: rebeccapurple;
+    color: white;
+}
+input {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    cursor: pointer;
+    display: none;
 }
 footer {
     align-self: center;
