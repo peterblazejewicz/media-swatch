@@ -1,32 +1,92 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
 <dom-module id="median-cut">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]!</h2>
-  </template>
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+        </style>
+        <canvas id="canvas"></canvas>
+        <img id="image" hidden></image>
+    </template>
 
-  <script>
-    /**
-     * @customElement
-     * @polymer
-     */
-    class MedianCut extends Polymer.Element {
-      static get is() { return 'median-cut'; }
-      static get properties() {
-        return {
-          prop1: {
-            type: String,
-            value: 'median-cut-app'
-          }
-        };
-      }
-    }
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class MedianCut extends Polymer.Element {
+            static get is() {
+                return 'median-cut';
+            }
+            static get properties() {
+                return {
+                    file: {
+                        type: Object,
+                        observer: '_fileChanged'
+                    },
+                    _fileReader: {
+                        notify: false,
+                        type: FileReader,
+                        readOnly: true,
+                        value: null
+                    }
+                };
+            }
 
-    window.customElements.define(MedianCut.is, MedianCut);
-  </script>
+            constructor(){
+                super();
+                this._fileChanged = this._fileChanged.bind(this);
+                this._loadFile = this._loadFile.bind(this);
+                this._imageLoaded = this._imageLoaded.bind(this);
+                this._ctx = null;
+            }
+
+            get ctx() {
+                if(!this._ctx) {
+                    this._ctx = this.$.canvas.getContext('2d');
+                    this._ctx.mozImageSmoothingEnabled = false;
+                    this._ctx.msImageSmoothingEnabled = false;
+                    this._ctx.imageSmoothingEnabled = false;
+                } 
+                return this._ctx;
+            }
+
+            connectedCallback () {
+                super.connectedCallback();
+                this.$.image.addEventListener('load', this._imageLoaded);
+            }
+
+            diconnectedCallback () {
+                super.disconnectedCallback();
+                this.$.image.removeEventListener('load', this._imageLoaded);
+            }
+
+            _fileChanged() {
+                console.log(this._fileChanged.name);
+                if(this._fileReader === null) {
+                    this._set_fileReader(new FileReader());
+                    this._fileReader.onload = this._loadFile.bind(this);
+                }
+                this._fileReader.readAsDataURL(this.file);
+            }
+
+            _loadFile(event){
+                console.log(this._loadFile.name);
+                this.$.image.src = event.target.result;
+            }
+
+            _imageLoaded(event) {
+                console.log(this._imageLoaded.name);
+                this.$.canvas.width = this.$.image.width;
+                this.$.canvas.height = this.$.image.height;
+                this.ctx.drawImage(this.$.image, 0, 0);
+                let pixels = this.ctx.getImageData(0, 0, this.$.canvas.width, this.$.canvas.height);
+                console.log(pixels);
+            }
+        }
+
+        window.customElements.define(MedianCut.is, MedianCut);
+    </script>
 </dom-module>
