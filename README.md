@@ -2,6 +2,8 @@
 
 Drop an image to get its median cut swatches
 
+![image](https://user-images.githubusercontent.com/14539/28250061-5f79ba4e-6a61-11e7-945c-4b3098bcbb7d.png)
+
 This component uses Paul's Lewis code from SuperCharged series to create up to 16 color swatches based on uploaded image.
 
 For example this image:
