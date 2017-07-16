@@ -20,6 +20,7 @@ main {
     text-align: center;
 }
 label {
+    display: inline-block;
     padding: .5rem 1rem;
     color: rebeccapurple;
     border: 3px solid rebeccapurple;
@@ -46,4 +47,12 @@ input {
 footer {
     align-self: center;
     padding: 1rem;
+}
+.menu {
+    width: 100%;
+    padding: 1rem 2rem;
+}
+
+median-cut {
+    width: 100%;
 }
