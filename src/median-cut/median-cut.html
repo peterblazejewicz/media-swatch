@@ -4,11 +4,29 @@
     <template>
         <style>
              :host {
-                display: inline-block;
+                display: flex;
+                flex-direction: column;
+                flex: auto;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #container {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                flex: auto;
+                width: 100%;
+            }
+
+            .color {
+                width: 25%;
+                flex: 1 1 auto;
             }
         </style>
         <canvas id="canvas" hidden></canvas>
         <img id="image" hidden></image>
+        <div id="container"></div>
     </template>
 
     <script>
@@ -41,7 +59,7 @@
             constructor() {
                 super();
                 this._fileChanged = this._fileChanged.bind(this);
-                this._loadFile = this._loadFile.bind(this);
+                this._fileLoaded = this._fileLoaded.bind(this);
                 this._imageLoaded = this._imageLoaded.bind(this);
                 this._ctx = null;
             }
@@ -70,27 +88,68 @@
                 console.log(this._fileChanged.name);
                 if (this._fileReader === null) {
                     this._set_fileReader(new FileReader());
-                    this._fileReader.onload = this._loadFile.bind(this);
+                    this._fileReader.onload = this._fileLoaded;
                 }
                 this._fileReader.readAsDataURL(this.file);
             }
 
-            _loadFile(event) {
-                console.log(this._loadFile.name);
+            /**
+            * Handles FileReader load event
+            * Assign data to image so we could draw into canvas
+            * The image has the load event handler already assigned
+            */
+            _fileLoaded(event) {
                 this.$.image.src = event.target.result;
             }
 
+
+            /**
+            * within image load handler run median cut alg on the image data
+            * - project image into canvas
+            * - read image information from canvas (as ImageData object)
+            * - run median cut alg
+            * - update inner container with computed swatches
+            */
             _imageLoaded(event) {
-                console.log(this._imageLoaded.name);
                 const width = this.$.image.width;
                 const height = this.$.image.height;
                 this.$.canvas.width = width;
                 this.$.canvas.height = height;
                 this.ctx.drawImage(this.$.image, 0, 0);
+                // get bytes
                 let imageData = this.ctx.getImageData(0, 0, width, height);
+                // convert to rgb
                 let rgbPixels = this._convertToRGBPixels(imageData);
+                // quantize
+                let buckets = MedianCut.quantize(rgbPixels);
+                // luminance
+                let swatch = MedianCut.orderByLuminance(buckets);
+                // primary colour
+                // let primary = MedianCut.getMostVariantColor(swatch);
+                // // set of colours
+                // const colors = {
+                //     primary,
+                //     secondary: MedianCut.darken(primary, 25),
+                //     tertiary: MedianCut.darken(primary, 50),
+                //     quaternary: MedianCut.darken(primary, 75),
+                //     primaryLight: MedianCut.lighten(primary, 100)
+                // };
+                // console.log(JSON.stringify(colors, null, 2));
+                // html
+                this.$.container.innerHTML = swatch
+                    .reduce((prev, color) => {
+                        return prev +
+                        `<div class="color" 
+                            style="background-color: rgb(${color.r}, ${color.g}, ${color.b})">
+                        </div>`;
+                    }, '');
+
             }
 
+            /**
+            * for details about this see:
+            * https://www.youtube.com/watch?v=P95ZDIzjg0Q&t=617s
+            */
             _convertToRGBPixels(imageData) {
                 const width = imageData.width;
                 const height = imageData.height;
@@ -111,13 +170,10 @@
             static _findBiggestRange(rgbVals) {
                 let rMin = Number.POSITIVE_INFINITY;
                 let rMax = Number.NEGATIVE_INFINITY;
-
                 let gMin = Number.POSITIVE_INFINITY;
                 let gMax = Number.NEGATIVE_INFINITY;
-
                 let bMin = Number.POSITIVE_INFINITY;
                 let bMax = Number.NEGATIVE_INFINITY;
-
                 rgbVals.forEach(pixel => {
                     rMin = Math.min(rMin, pixel.r);
                     rMax = Math.max(rMax, pixel.r);
@@ -126,11 +182,9 @@
                     bMin = Math.min(bMin, pixel.b);
                     bMax = Math.max(bMax, pixel.b);
                 });
-
                 const rRange = rMax - rMin;
                 const gRange = gMax - gMin;
                 const bRange = bMax - bMin;
-
                 const biggestRange = Math.max(rRange, gRange, bRange);
                 if (biggestRange === rRange) {
                     return 'r';
@@ -156,21 +210,17 @@
                         g: 0,
                         b: 0
                     });
-
                     color.r = Math.round(color.r / rgbVals.length);
                     color.g = Math.round(color.g / rgbVals.length);
                     color.b = Math.round(color.b / rgbVals.length);
-
                     return [color];
                 }
-
                 // Recursive case: find the component with the biggest range,
                 // sort by it, then divide the RGB values in half, and go again.
                 const componentToSortBy = MedianCut._findBiggestRange(rgbVals);
                 rgbVals.sort((p1, p2) => {
                     return p1[componentToSortBy] - p2[componentToSortBy];
                 });
-
                 const mid = rgbVals.length / 2;
                 return [...MedianCut.quantize(rgbVals.slice(0, mid), depth + 1, maxDepth),
                     ...MedianCut.quantize(rgbVals.slice(mid + 1), depth + 1, maxDepth)
@@ -194,7 +244,6 @@
                     // Remap each RGB value to a variance by taking the max component from the
                     // min component.
                     .map(v => Math.max(v.r, v.g, v.b) - Math.min(v.r, v.g, v.b))
-
                     // Then step through each value and find which has the largest value.
                     .forEach((v, i) => {
                         if (v > max) {
@@ -202,7 +251,6 @@
                             max = v;
                         }
                     });
-
                 return rgbVals[index];
             }
 

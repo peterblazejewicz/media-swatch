@@ -35,7 +35,9 @@
         * handler for file upload
         */
         app.upload = (event) => {
-            median_cut.file = event.target.files[0];
+            if(event.target.files) {
+                median_cut.file = event.target.files[0];
+            }
             return false;
         };
     </script>
